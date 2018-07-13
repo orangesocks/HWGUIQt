@@ -20,7 +20,7 @@ CLASS HWGMenuBar INHERIT HWGControl
 
 ENDCLASS
 
-METHOD new (oParent,cStyleSheet) CLASS HWGMenuBar
+METHOD new ( oParent, cStyleSheet, lDisabled ) CLASS HWGMenuBar
 
    IF valtype(oParent) == "O"
       IF oParent:oQt:metaObject():className() == "QMainWindow"
@@ -29,12 +29,27 @@ METHOD new (oParent,cStyleSheet) CLASS HWGMenuBar
          ::oQt := QMenuBar():new(oParent:oQt)
          oParent:oQt:setMenuBar(::oQt)
       ENDIF
+      ::oParent := oParent
    ELSE
-      ::oQt := QMenuBar():new()
+      IF valtype(HWGFILO():last()) == "O"
+         IF HWGFILO():last():oQt:metaObject():className() == "QMainWindow"
+            ::oQt := HWGFILO():last():oQt:menuBar()
+         ELSE
+            ::oQt := QMenuBar():new(HWGFILO():last():oQt)
+            HWGFILO():last():oQt:setMenuBar(::oQt)
+         ENDIF
+         ::oParent := HWGFILO():last()
+      ELSE
+         ::oQt := QMenuBar():new()
+      ENDIF
    ENDIF
 
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
+   ::configureStyleSheet( cStyleSheet )
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
    ENDIF
 
    HWGFILO():add(self)

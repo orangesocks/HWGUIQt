@@ -19,10 +19,11 @@ PROCEDURE Main ()
    LOCAL oApp
    LOCAL oDialog
    LOCAL oSay
+   LOCAL oTimer
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
-   INIT DIALOG oDialog TITLE "Teste da classe HTimer" SIZE 320,240
+   INIT DIALOG oDialog TITLE "Teste da classe HWGTimer" SIZE 320,240
 
    @ 20,20 SAY oSay CAPTION "" SIZE 130,30 OF oDialog
 
@@ -30,8 +31,8 @@ PROCEDURE Main ()
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

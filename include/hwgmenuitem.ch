@@ -13,34 +13,74 @@
           [ STATUSTIP <cStatusTip> ] ;
           [ WHATSTHIS <cWhatsThis> ] ;
           [ STYLESHEET <cStyleSheet> ] ;
+          [ FONT <oFont> ] ;
           [ ID <nId> ] ;
           [ BITMAP <cBitmap> ] ;
+          [ ICON <cBitmap> ] ;
+          [ SHORTCUT <xKeySequence> ] ;
+          [ <lCheckable:CHECKABLE> ] ;
+          [ <lChecked:CHECKED> ] ;
+          [ <lDisabled:DISABLED> ] ;
+          [ <lInvisible:INVISIBLE> ] ;
           [ <class:CLASS> <className> ] ;
           => ;
-          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():new( <oParent>, ;
-                                           <cOption>, ;
-                                           <{bAction}>, ;
-                                           <cToolTip>, ;
-                                           <cStatusTip>, ;
-                                           <cWhatsThis>, ;
-                                           <cStyleSheet>, ;
-                                           .F., ;
-                                           <nId>, ;
-                                           <cBitmap> )
+          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():new( ;
+             <oParent>, ;
+             <cOption>, ;
+             <{bAction}>, ;
+             <cToolTip>, ;
+             <cStatusTip>, ;
+             <cWhatsThis>, ;
+             <cStyleSheet>, ;
+             <oFont>, ;
+             .F., ;
+             <nId>, ;
+             <cBitmap>, ;
+             <xKeySequence>, ;
+             <.lCheckable.>, ;
+             <.lChecked.>, ;
+             <.lDisabled.>, ;
+             <.lInvisible.> ) ;;
+          [ <oObj>:cName := <(oObj)> ]
 
 #xcommand SEPARATOR [ <oObj> ] ;
           [ OF <oParent> ] ;
           [ <class:CLASS> <className> ] ;
           => ;
-          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():new( <oParent>, ;
-                                           NIL, ;
-                                           NIL, ;
-                                           NIL, ;
-                                           NIL, ;
-                                           NIL, ;
-                                           NIL, ;
-                                           .T. )
+          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():new( ;
+             <oParent>, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             .T. ) ;;
+          [ <oObj>:cName := <(oObj)> ]
 
-#xcommand MENUITEM [ <oObj> ] USING ACTION <oAction> [ OF <oParent> ] [ <class:CLASS> <className> ] ;
+#xcommand MENUSEPARATOR [ <oObj> ] ;
+          [ OF <oParent> ] ;
+          [ <class:CLASS> <className> ] ;
           => ;
-          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():newWithAction( <oParent>, <oAction> )
+          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():new( ;
+             <oParent>, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             NIL, ;
+             .T. ) ;;
+          [ <oObj>:cName := <(oObj)> ]
+
+#xcommand MENUITEM [ <oObj> ] ;
+          USING ACTION <oAction> ;
+          [ OF <oParent> ] ;
+          [ <class:CLASS> <className> ] ;
+          => ;
+          [ <oObj> := ] __IIF(<.class.>,<className>,HWGMenuItem)():newWithAction( ;
+             <oParent>, ;
+             <oAction> ) ;;
+          [ <oObj>:cName := <(oObj)> ]

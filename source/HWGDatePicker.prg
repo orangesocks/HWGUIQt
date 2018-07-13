@@ -16,6 +16,7 @@
 
 CLASS HWGDatePicker INHERIT HWGControl
 
+   DATA bSetGet
    DATA oActionButton
 
    METHOD new
@@ -24,46 +25,41 @@ CLASS HWGDatePicker INHERIT HWGControl
 
 ENDCLASS
 
-METHOD new ( oParent, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, cStyleSheet, oFont, ;
-             dDate, bOnInit ) CLASS HWGDatePicker
-
-   LOCAL oDate
+METHOD new ( oParent, nId, nStyle, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, ;
+             cStyleSheet, oFont, xForeColor, xBackColor, ;
+             dDate, xVar, bSetGet, ;
+             bInit, bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable, ;
+             lDisabled, lInvisible ) CLASS HWGDatePicker
 
    IF valtype(oParent) == "O"
       ::oQt := QLineEdit():new(oParent:oQt)
+      ::oParent := oParent
    ELSE
-      ::oQt := QLineEdit():new(HWGFILO():last():oQt)
+      IF valtype(HWGFILO():last()) == "O"
+         ::oQt := QLineEdit():new(HWGFILO():last():oQt)
+         ::oParent := HWGFILO():last()
+      ELSE
+         ::oQt := QLineEdit():new()
+      ENDIF
    ENDIF
 
-   IF valtype(nX) == "N" .AND. valtype(nY) == "N"
-      ::oQt:move(nX,nY)
+   IF nId == NIL
+      ::nId := ::newId()
+   ELSE
+      ::nId := nId
    ENDIF
 
-   IF valtype(nWidth) == "N" .AND. valtype(nHeight) == "N"
-      ::oQt:resize(nWidth,nHeight)
-   ENDIF
+   ::configureStyle( nStyle )
+   ::configureGeometry( nX, nY, nWidth, nHeight )
+   ::configureTips( cToolTip, cStatusTip, cWhatsThis )
+   ::configureStyleSheet( cStyleSheet )
+   ::configureFont( oFont )
+   ::configureColors( ::oQt:foregroundRole(), xForeColor, ::oQt:backgroundRole(), xBackColor )
 
-   IF valtype(cToolTip) == "C"
-      ::oQt:setToolTip(cToolTip)
-   ENDIF
-
-   IF valtype(cStatusTip) == "C"
-      ::oQt:setStatusTip(cStatusTip)
-   ENDIF
-
-   IF valtype(cWhatsThis) == "C"
-      ::oQt:setWhatsThis(cWhatsThis)
-   ENDIF
-
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
-   ENDIF
-
-   IF valtype(oFont) == "O"
-      ::oQt:setFont(oFont:oQt)
-   ENDIF
-
-   ::oActionButton := QPushButton():new("...",::oQt:parent()):move(::oQt:x()+::oQt:width(),::oQt:y()):resize(30,::oQt:height())
+   ::oActionButton := QPushButton():new("...",::oQt:parent())
+   ::oActionButton:move(::oQt:x()+::oQt:width(),::oQt:y())
+   ::oActionButton:resize(30,::oQt:height())
+   ::oActionButton:setAutoDefault(.F.)
    ::oActionButton:onClicked({||::showcalendar()})
    ::oQt:setInputMask("00/00/0000")
 
@@ -71,16 +67,42 @@ METHOD new ( oParent, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis,
       ::oQt:setText(transform(dDate,"99/99/9999"))
    ENDIF
 
-   IF valtype(bOnInit) == "B"
-      ::bInit := bOnInit
+   IF valtype(xVar) == "D"
+      ::oQt:setText(transform(xVar,"99/99/9999"))
    ENDIF
 
-   // atualiza propriedades do objeto
+   ::bSetGet := bSetGet
 
-   ::nLeft   := ::oQt:x()
-   ::nTop    := ::oQt:y()
-   ::nWidth  := ::oQt:width()
-   ::nHeight := ::oQt:height()
+   IF valtype(bInit) == "B"
+      ::bInit := bInit
+   ENDIF
+
+   ::configureEvents( bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable )
+   ::connectEvents()
+
+   // TODO: enabled/disable deve agir nos dois objetos (::oQt e ::oActionButton)
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+         ::oActionButton:setEnabled(.F.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
+   ENDIF
+
+   IF valtype(::bSetGet) == "B"
+      ::oQt:onTextEdited( {|oSender,cText|eval(::bSetGet,ctod(cText))} )
+      ::oQt:onTextChanged( {|oSender,cText|eval(::bSetGet,ctod(cText))} )
+   ENDIF
+
+   IF ::oParent != NIL
+      ::oParent:addControl(self)
+   ENDIF
 
    ::activate()
 
@@ -89,7 +111,7 @@ RETURN self
 METHOD activate () CLASS HWGDatePicker
 
    IF valtype(::bInit) == "B"
-      eval(::bInit)
+      eval(::bInit, self)
    ENDIF
 
 RETURN NIL
@@ -115,7 +137,7 @@ METHOD showCalendar () CLASS HWGDatePicker
       oCalendar:setSelectedDate(QDate():new(year(dDate),month(dDate),day(dDate)))
    ENDIF
 
-   oCalendar:onActivated({|pObject,pDate|oDate:=QDate():newFrom(pDate),::oQt:setText(strzero(oDate:day(),2)+"/"+strzero(oDate:month(),2)+"/"+strzero(oDate:year(),4)),oDialog:done(0)})
+   oCalendar:onActivated({|oSender,oDate|::oQt:setText(strzero(oDate:day(),2)+"/"+strzero(oDate:month(),2)+"/"+strzero(oDate:year(),4)),oDialog:done(0)})
 
    oCalendar:setFocus()
 

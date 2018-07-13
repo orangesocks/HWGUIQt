@@ -23,7 +23,8 @@ CLASS HWGMenuItem INHERIT HWGControl
 
 ENDCLASS
 
-METHOD new ( oParent, cOption, bAction, cToolTip, cStatusTip, cWhatsThis, cStyleSheet, lSeparator, nId, cBitmap) CLASS HWGMenuItem
+METHOD new ( oParent, cOption, bAction, cToolTip, cStatusTip, cWhatsThis, cStyleSheet, oFont, ;
+             lSeparator, nId, cBitmap, xKeySequence, lCheckable, lChecked, lDisabled, lInvisible ) CLASS HWGMenuItem
 
    IF lSeparator == NIL
       lSeparator := .F.
@@ -33,10 +34,16 @@ METHOD new ( oParent, cOption, bAction, cToolTip, cStatusTip, cWhatsThis, cStyle
 
       IF valtype(oParent) == "O"
          ::oQt := oParent:oQt:addAction(cOption)
+         ::oParent := oParent
       ELSE
         //::oQt := QAction():new(cOption)
         ::oQt := HWGFILO():last():oQt:addAction(cOption)
+        ::oParent := HWGFILO():last()
       ENDIF
+
+      ::configureTips( cToolTip, cStatusTip, cWhatsThis )
+      ::configureStyleSheet( cStyleSheet )
+      ::configureFont( oFont )
 
       IF valtype(nId) == "N"
          ::oQt:setProperty("nId", QVariant():new(nId))
@@ -46,8 +53,36 @@ METHOD new ( oParent, cOption, bAction, cToolTip, cStatusTip, cWhatsThis, cStyle
          ::oQt:setIcon( QIcon():new(cBitmap) )
       ENDIF
 
+      IF valtype(xKeySequence) != "U"
+         ::oQt:setShortcut( QKeySequence():new(xKeySequence) )
+      ENDIF
+
       IF valtype(bAction) == "B"
         ::bAction := bAction
+      ENDIF
+
+      IF valtype(lCheckable) == "L"
+         IF lCheckable
+            ::oQt:setCheckable(.T.)
+         ENDIF
+      ENDIF
+
+      IF valtype(lChecked) == "L"
+         IF lChecked
+            ::oQt:setChecked(.T.)
+         ENDIF
+      ENDIF
+
+      IF valtype(lDisabled) == "L"
+         IF lDisabled
+            ::oQt:setEnabled(.F.)
+         ENDIF
+      ENDIF
+
+      IF valtype(lInvisible) == "L"
+         IF lInvisible
+            ::oQt:setVisible(.F.)
+         ENDIF
       ENDIF
 
       ::oQt:onTriggered({||iif(valtype(::bAction)=="B",eval(::bAction),NIL)})
@@ -56,9 +91,14 @@ METHOD new ( oParent, cOption, bAction, cToolTip, cStatusTip, cWhatsThis, cStyle
 
       IF valtype(oParent) == "O"
          ::oQt := oParent:oQt:addSeparator()
+         ::oParent := oParent
       ELSE
-        //::oQt := QAction():new():setSeparator(.T.)
-        ::oQt := HWGFILO():last():oQt:addSeparator()
+         IF valtype(HWGFILO():last()) == "O"
+            ::oQt := HWGFILO():last():oQt:addSeparator()
+            ::oParent := HWGFILO():last()
+         ELSE
+            ::oQt := QAction():new():setSeparator(.T.)
+         ENDIF
       ENDIF
 
    ENDIF
@@ -69,9 +109,11 @@ METHOD newWithAction (oParent,oAction) CLASS HWGMenuItem
 
    IF valtype(oParent) == "O"
       ::oQt := oParent:oQt:addAction(oAction:oQt)
+      ::oParent := oParent
    ELSE
       IF HWGFilo():last():oQt:metaObject():className() == "QMenu"
          ::oQt := HWGFilo():last():oQt:addAction(oAction:oQt)
+         ::oParent := HWGFILO():last()
       ELSE
          ::oQt := oAction:oQt
       ENDIF

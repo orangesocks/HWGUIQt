@@ -21,7 +21,7 @@ CLASS HWGToolBar INHERIT HWGControl
 
 ENDCLASS
 
-METHOD new (oParent,cStyleSheet,par3,par4,par5,par6,par7,par8,par9,par10,bOnInit) CLASS HWGToolBar
+METHOD new ( oParent, cStyleSheet, bOnInit, lDisabled, lInvisible ) CLASS HWGToolBar
 
    IF valtype(oParent) == "O"
       IF oParent:oQt:metaObject():className() == "QMainWindow"
@@ -30,16 +30,38 @@ METHOD new (oParent,cStyleSheet,par3,par4,par5,par6,par7,par8,par9,par10,bOnInit
          ::oQt := QToolBar():new(oParent:oQt)
          oParent:oQt:setToolBar(::oQt)
       ENDIF
+      ::oParent := oParent
    ELSE
-      ::oQt := QToolBar():new()
+      IF valtype(HWGFILO():last()) == "O"
+         IF HWGFILO():last():oQt:metaObject():className() == "QMainWindow"
+            ::oQt := HWGFILO():last():oQt:addToolBar("")
+         ELSE
+            ::oQt := QToolBar():new(HWGFILO():last():oQt)
+            HWGFILO():last():oQt:setToolBar(::oQt)
+         ENDIF
+         //::oQt := QToolBar():new(HWGFILO():last():oQt)
+         ::oParent := HWGFILO():last()
+      ELSE
+         ::oQt := QToolBar():new()
+      ENDIF
    ENDIF
 
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
-   ENDIF
+   ::configureStyleSheet( cStyleSheet )
 
    IF valtype(bOnInit) == "B"
       ::bInit := bOnInit
+   ENDIF
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
    ENDIF
 
    ::activate()
@@ -51,7 +73,7 @@ RETURN self
 METHOD activate () CLASS HWGToolBar
 
    IF valtype(::bInit) == "B"
-      eval(::bInit)
+      eval(::bInit, self)
    ENDIF
 
 RETURN NIL

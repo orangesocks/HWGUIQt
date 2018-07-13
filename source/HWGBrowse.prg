@@ -25,87 +25,67 @@ CLASS HWGBrowse INHERIT HWGControl
 
 ENDCLASS
 
-METHOD new ( oParent, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, cStyleSheet, oFont, ;
-             bInit, bSize, bPaint, bGFocus, bLFocus, ;
-             lArray, lDatabase ) CLASS HWGBrowse
+METHOD new ( oParent, nId, nStyle, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, ;
+             cStyleSheet, oFont, xForeColor, xBackColor, ;
+             bInit, bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable, ;
+             lArray, lDatabase, lDisabled, lInvisible ) CLASS HWGBrowse
 
    IF valtype(oParent) == "O"
       ::oQt := QTableView():new(oParent:oQt)
+      ::oParent := oParent
    ELSE
       IF valtype(HWGFILO():last()) == "O"
          ::oQt := QTableView():new(HWGFILO():last():oQt)
+         ::oParent := HWGFILO():last()
       ELSE
          ::oQt := QTableView():new()
       ENDIF
    ENDIF
 
-   IF valtype(nX) == "N" .AND. valtype(nY) == "N"
-      ::oQt:move(nX,nY)
+   IF nId == NIL
+      ::nId := ::newId()
+   ELSE
+      ::nId := nId
    ENDIF
 
-   IF valtype(nWidth) == "N" .AND. valtype(nHeight) == "N"
-      ::oQt:resize(nWidth,nHeight)
-   ENDIF
-
-   IF valtype(cToolTip) == "C"
-      ::oQt:setToolTip(cToolTip)
-   ENDIF
-
-   IF valtype(cStatusTip) == "C"
-      ::oQt:setStatusTip(cStatusTip)
-   ENDIF
-
-   IF valtype(cWhatsThis) == "C"
-      ::oQt:setWhatsThis(cWhatsThis)
-   ENDIF
-
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
-   ENDIF
-
-   IF valtype(oFont) == "O"
-      ::oQt:setFont(oFont:oQt)
-   ENDIF
+   ::configureStyle( nStyle )
+   ::configureGeometry( nX, nY, nWidth, nHeight )
+   ::configureTips( cToolTip, cStatusTip, cWhatsThis )
+   ::configureStyleSheet( cStyleSheet )
+   ::configureFont( oFont )
+   ::configureColors( ::oQt:foregroundRole(), xForeColor, ::oQt:backgroundRole(), xBackColor )
 
    IF valtype(bInit) == "B"
       ::bInit := bInit
    ENDIF
 
-   IF valtype(bSize) == "B"
-      ::bSize := bSize
-      ::oQt:onResizeEvent( {|oSender,oEvent| ::onSize(oSender,oEvent) } )
+   ::configureEvents( bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable )
+   ::connectEvents()
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
    ENDIF
 
-   IF valtype(bPaint) == "B"
-      ::bPaint := bPaint
-      ::oQt:onPaintEvent( {|oSender,oEvent| ::onPaint(oSender,oEvent) } )
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
    ENDIF
-
-   IF valtype(bGFocus) == "B"
-      ::bGFocus := bGFocus
-      ::oQt:onFocusInEvent( {|oSender,oEvent| ::onGFocus(oSender,oEvent) } )
-   ENDIF
-
-   IF valtype(bLFocus) == "B"
-      ::bLFocus := bLFocus
-      ::oQt:onFocusOutEvent( {|oSender,oEvent| ::onLFocus(oSender,oEvent) } )
-   ENDIF
-
-   // atualiza propriedades do objeto
-
-   ::nLeft   := ::oQt:x()
-   ::nTop    := ::oQt:y()
-   ::nWidth  := ::oQt:width()
-   ::nHeight := ::oQt:height()
 
    // cria o modelo
-   ::oModel := HBrowseArrayModel():new()
+   ::oModel := HWGBrowseArrayModel():new(::oQt)
 
    // armazena no modelo o objeto browse
    ::oModel:oBrowse := self
 
    // associa modelo ao visualizador
    ::oQt:setModel(::oModel)
+
+   IF ::oParent != NIL
+      ::oParent:addControl(self)
+   ENDIF
 
    ::activate()
 
@@ -114,14 +94,14 @@ RETURN self
 METHOD activate () CLASS HWGBrowse
 
    IF valtype(::bInit) == "B"
-      eval(::bInit)
+      eval(::bInit, self)
    ENDIF
 
 RETURN NIL
 
 //-----------------------------------------------------------------//
 
-CLASS HBrowseArrayModel INHERIT HAbstractTableModelV2
+CLASS HWGBrowseArrayModel INHERIT HAbstractTableModelV2
 
    DATA oBrowse
 
@@ -135,7 +115,7 @@ CLASS HBrowseArrayModel INHERIT HAbstractTableModelV2
 
 END CLASS
 
-METHOD new (...) CLASS HBrowseArrayModel
+METHOD new (...) CLASS HWGBrowseArrayModel
 
    ::super:new(...)
 
@@ -148,13 +128,13 @@ METHOD new (...) CLASS HBrowseArrayModel
 
 RETURN self
 
-METHOD rowCount () CLASS HBrowseArrayModel
+METHOD rowCount () CLASS HWGBrowseArrayModel
 RETURN len( ::oBrowse:aArray )
 
-METHOD columnCount () CLASS HBrowseArrayModel
+METHOD columnCount () CLASS HWGBrowseArrayModel
 RETURN iif( len( ::oBrowse:aArray ) > 0, len( ::oBrowse:aArray[1] ), 0 )
 
-METHOD data (pIndex, nRole) CLASS HBrowseArrayModel
+METHOD data (pIndex, nRole) CLASS HWGBrowseArrayModel
 
    LOCAL oVariant := QVariant():new()
    LOCAL oIndex := QModelIndex():newFrom(pIndex)
@@ -173,7 +153,7 @@ METHOD data (pIndex, nRole) CLASS HBrowseArrayModel
 
 RETURN oVariant
 
-METHOD headerData (nSection, nOrientation, nRole) CLASS HBrowseArrayModel
+METHOD headerData (nSection, nOrientation, nRole) CLASS HWGBrowseArrayModel
 
    LOCAL oVariant := QVariant():new()
 
@@ -185,7 +165,7 @@ METHOD headerData (nSection, nOrientation, nRole) CLASS HBrowseArrayModel
 
 RETURN oVariant
 
-METHOD flags (pIndex) CLASS HBrowseArrayModel
+METHOD flags (pIndex) CLASS HWGBrowseArrayModel
 
    //LOCAL nFlags := Qt_ItemIsSelectable + Qt_ItemIsEditable + Qt_ItemIsEnabled
    LOCAL nFlags := Qt_ItemIsSelectable + Qt_ItemIsEnabled
@@ -195,7 +175,7 @@ METHOD flags (pIndex) CLASS HBrowseArrayModel
 
 RETURN nFlags
 
-METHOD setData (pIndex, pVariant, nRole) CLASS HBrowseArrayModel
+METHOD setData (pIndex, pVariant, nRole) CLASS HWGBrowseArrayModel
 
    LOCAL lSuccess := .F.
    LOCAL oIndex := QModelIndex():newFrom(pIndex)

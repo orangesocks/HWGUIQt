@@ -25,13 +25,13 @@ PROCEDURE Main ()
    LOCAL oFont2
    LOCAL oFont3
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
    PREPARE FONT oFont1 NAME "Arial" WIDTH 14
    PREPARE FONT oFont2 NAME "Courier New" WIDTH 14 WEIGHT 50 ITALIC
    PREPARE FONT oFont3 NAME "Verdana" WIDTH 16 WEIGHT 25 UNDERLINE
 
-   INIT DIALOG oDialog TITLE "Teste da classe HStatic" SIZE 320,240
+   INIT DIALOG oDialog TITLE "Teste da classe HWGStatic" SIZE 320,240
 
    @ 10,10 SAY oSay1 CAPTION "Campo 1" SIZE 100,30 FONT oFont1 OF oDialog
 
@@ -41,8 +41,8 @@ PROCEDURE Main ()
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

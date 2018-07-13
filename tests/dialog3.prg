@@ -18,9 +18,10 @@ PROCEDURE Main ()
 
    LOCAL oApp
    LOCAL oDialog
-   LOCAL oButton
+   LOCAL oButtonOk
+   LOCAL oButtonCancel
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
    INIT DIALOG oDialog TITLE "Janela de diálogo" AT 300,300 SIZE 320,240 ;
       ON INIT {||qout("oDialog-init")} ;
@@ -29,14 +30,14 @@ PROCEDURE Main ()
       ON LOSTFOCUS {||qout("oDialog-lostfocus")}
 
    @ 10,10 BUTTON oButtonOk CAPTION "Ok" SIZE 120,30 OF oDialog ;
-      ON CLICK {||hwg_MsgInfo("botão clicado")} ;
+      ON CLICK {||hwgqt_MsgInfo("botão clicado")} ;
       ON INIT {||qout("oButtonOk-init")} ;
       ON SIZE {||qout("oButtonOk-size")} ;
       ON GETFOCUS {||qout("oButtonOk-getfocus")} ;
       ON LOSTFOCUS {||qout("oButtonOk-lostfocus")}
 
    @ 10,130 BUTTON oButtonCancel CAPTION "Cancel" SIZE 120,30 OF oDialog ;
-      ON CLICK {||hwg_MsgInfo("botão clicado")} ;
+      ON CLICK {||hwgqt_MsgInfo("botão clicado")} ;
       ON INIT {||qout("oButtonCancel-init")} ;
       ON SIZE {||qout("oButtonCancel-size")} ;
       ON GETFOCUS {||qout("oButtonCancel-getfocus")} ;
@@ -44,8 +45,8 @@ PROCEDURE Main ()
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

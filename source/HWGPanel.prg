@@ -17,50 +17,70 @@
 CLASS HWGPanel INHERIT HWGControl
 
    METHOD new
+   METHOD activate
 
 ENDCLASS
 
-METHOD new (oParent,nX,nY,nWidth,nHeight,cToolTip,cStatusTip,cWhatsThis,cStyleSheet,bOnInit) CLASS HWGPanel
+METHOD new ( oParent, nId, nStyle, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, ;
+             cStyleSheet, xForeColor, xBackColor, ;
+             bInit, bSize, bMove, bPaint, bShow, bHide, bEnable, bDisable, ;
+             lDisabled, lInvisible ) CLASS HWGPanel
 
    IF valtype(oParent) == "O"
       ::oQt := QFrame():new(oParent:oQt)
+      ::oParent := oParent
    ELSE
-      ::oQt := QFrame():new()
+      IF valtype(HWGFILO():last()) == "O"
+         ::oQt := QFrame():new(HWGFILO():last():oQt)
+         ::oParent := HWGFILO():last()
+      ELSE
+         ::oQt := QFrame():new()
+      ENDIF
    ENDIF
 
-   IF valtype(nX) == "N" .AND. valtype(nY) == "N"
-      ::oQt:move(nX,nY)
+   IF nId == NIL
+      ::nId := ::newId()
+   ELSE
+      ::nId := nId
    ENDIF
 
-   IF valtype(nWidth) == "N" .AND. valtype(nHeight) == "N"
-      ::oQt:resize(nWidth,nHeight)
+   ::configureStyle( nStyle )
+   ::configureGeometry( nX, nY, nWidth, nHeight )
+   ::configureTips( cToolTip, cStatusTip, cWhatsThis )
+   ::configureStyleSheet( cStyleSheet )
+   ::configureColors( ::oQt:foregroundRole(), xForeColor, ::oQt:backgroundRole(), xBackColor )
+
+   IF valtype(bInit) == "B"
+      ::bInit := bInit
    ENDIF
 
-   IF valtype(cToolTip) == "C"
-      ::oQt:setToolTip(cToolTip)
+   ::configureEvents( bSize, bMove, bPaint, NIL, NIL, bShow, bHide, bEnable, bDisable )
+   ::connectEvents()
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
    ENDIF
 
-   IF valtype(cStatusTip) == "C"
-      ::oQt:setStatusTip(cStatusTip)
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
    ENDIF
 
-   IF valtype(cWhatsThis) == "C"
-      ::oQt:setWhatsThis(cWhatsThis)
+   IF ::oParent != NIL
+      ::oParent:addControl(self)
    ENDIF
 
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
-   ENDIF
-
-   IF valtype(bOnInit) == "B"
-      ::bInit := bOnInit
-   ENDIF
-
-   // atualiza propriedades do objeto
-
-   ::nLeft   := ::oQt:x()
-   ::nTop    := ::oQt:y()
-   ::nWidth  := ::oQt:width()
-   ::nHeight := ::oQt:height()
+   ::activate()
 
 RETURN self
+
+METHOD activate () CLASS HWGPanel
+
+   IF valtype(::bInit) == "B"
+      eval(::bInit, self)
+   ENDIF
+
+RETURN NIL

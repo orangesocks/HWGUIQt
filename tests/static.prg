@@ -21,9 +21,9 @@ PROCEDURE Main ()
    LOCAL oSay1
    LOCAL oSay2
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
-   INIT DIALOG oDialog TITLE "Teste da classe HStatic" SIZE 320,240
+   INIT DIALOG oDialog TITLE "Teste da classe HWGStatic" SIZE 320,240
 
    @ 10,10 SAY oSay1 CAPTION "Campo 1" SIZE 100,30 OF oDialog
 
@@ -31,8 +31,8 @@ PROCEDURE Main ()
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

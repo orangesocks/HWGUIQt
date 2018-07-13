@@ -24,41 +24,36 @@ CLASS HWGUpDown INHERIT HWGControl
 
 ENDCLASS
 
-METHOD new (oParent,nX,nY,nWidth,nHeight,cToolTip,cStatusTip,cWhatsThis,cStyleSheet,oFont,nValue,nMinimum,nMaximum,nStep,cPrefix,cSuffix,bOnInit) CLASS HWGUpDown
+METHOD new ( oParent, nId, nStyle, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, ;
+             cStyleSheet, oFont, xForeColor, xBackColor, ;
+             nValue, nMinimum, nMaximum, nStep, cPrefix, cSuffix, ;
+             bInit, bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable, ;
+             lDisabled, lInvisible ) CLASS HWGUpDown
 
    IF valtype(oParent) == "O"
       ::oQt := QSpinBox():new(oParent:oQt)
+      ::oParent := oParent
    ELSE
-      ::oQt := QSpinBox():new()
+      IF valtype(HWGFILO():last()) == "O"
+         ::oQt := QSpinBox():new(HWGFILO():last():oQt)
+         ::oParent := HWGFILO():last()
+      ELSE
+         ::oQt := QSpinBox():new()
+      ENDIF
    ENDIF
 
-   IF valtype(nX) == "N" .AND. valtype(nY) == "N"
-      ::oQt:move(nX,nY)
+   IF nId == NIL
+      ::nId := ::newId()
+   ELSE
+      ::nId := nId
    ENDIF
 
-   IF valtype(nWidth) == "N" .AND. valtype(nHeight) == "N"
-      ::oQt:resize(nWidth,nHeight)
-   ENDIF
-
-   IF valtype(cToolTip) == "C"
-      ::oQt:setToolTip(cToolTip)
-   ENDIF
-
-   IF valtype(cStatusTip) == "C"
-      ::oQt:setStatusTip(cStatusTip)
-   ENDIF
-
-   IF valtype(cWhatsThis) == "C"
-      ::oQt:setWhatsThis(cWhatsThis)
-   ENDIF
-
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
-   ENDIF
-
-   IF valtype(oFont) == "O"
-      ::oQt:setFont(oFont:oQt)
-   ENDIF
+   ::configureStyle( nStyle )
+   ::configureGeometry( nX, nY, nWidth, nHeight )
+   ::configureTips( cToolTip, cStatusTip, cWhatsThis )
+   ::configureStyleSheet( cStyleSheet )
+   ::configureFont( oFont )
+   ::configureColors( ::oQt:foregroundRole(), xForeColor, ::oQt:backgroundRole(), xBackColor )
 
    IF valtype(nValue) == "N"
       ::oQt:setValue(nValue)
@@ -80,16 +75,28 @@ METHOD new (oParent,nX,nY,nWidth,nHeight,cToolTip,cStatusTip,cWhatsThis,cStyleSh
       ::oQt:setSuffix(cSuffix)
    ENDIF
 
-   IF valtype(bOnInit) == "B"
-      ::bInit := bOnInit
+   IF valtype(bInit) == "B"
+      ::bInit := bInit
    ENDIF
 
-   // atualiza propriedades do objeto
+   ::configureEvents( bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable )
+   ::connectEvents()
 
-   ::nLeft   := ::oQt:x()
-   ::nTop    := ::oQt:y()
-   ::nWidth  := ::oQt:width()
-   ::nHeight := ::oQt:height()
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
+   ENDIF
+
+   IF ::oParent != NIL
+      ::oParent:addControl(self)
+   ENDIF
 
    ::activate()
 
@@ -98,7 +105,7 @@ RETURN self
 METHOD activate () CLASS HWGUpDown
 
    IF valtype(::bInit) == "B"
-      eval(::bInit)
+      eval(::bInit, self)
    ENDIF
 
 RETURN NIL

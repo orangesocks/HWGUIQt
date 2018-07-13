@@ -24,8 +24,10 @@ PROCEDURE Main ()
    LOCAL lCB1 := .F.
    LOCAL lCB2 := .T.
    LOCAL lCB3 := .F.
+   LOCAL oButtonOk
+   LOCAL oButtonCancel
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
    INIT DIALOG oDialog TITLE "Janela de diálogo" AT 300,300 SIZE 320,240
 
@@ -34,15 +36,15 @@ PROCEDURE Main ()
    @ 20,100 GET CHECKBOX oCB3 VAR lCB3 CAPTION "checkbox3" SIZE 130,30
 
    @ 10,160 BUTTON oButtonOk CAPTION "Ok" SIZE 120,30 OF oDialog ;
-      ON CLICK {||hwg_MsgInfo("botão 'Ok' clicado")}
+      ON CLICK {||hwgqt_MsgInfo("botão 'Ok' clicado")}
 
    @ 150,160 BUTTON oButtonCancel CAPTION "Cancelar" SIZE 120,30 OF oDialog ;
-      ON CLICK {||hwg_MsgInfo("botão 'Cancelar' clicado")}
+      ON CLICK {||hwgqt_MsgInfo("botão 'Cancelar' clicado")}
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

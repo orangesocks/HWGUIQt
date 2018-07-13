@@ -5,16 +5,19 @@
 #
 
 source\HWGAction.prg
+source\HWGApplication.prg
 source\HWGBitmap.prg
 source\HWGBrowse.prg
 source\HWGButton.prg
 source\HWGButtonEx.prg
 source\HWGCheckButton.prg
 source\HWGChildWindow.prg
+source\HWGColor.prg
 source\HWGColumn.prg
 source\HWGComboBox.prg
 source\HWGControl.prg
 source\HWGCustomWindow.prg
+source\HWGDateEdit.prg
 source\HWGDatePicker.prg
 source\HWGDial.prg
 source\HWGDialog.prg
@@ -22,9 +25,12 @@ source\HWGEdit.prg
 source\HWGEditBox.prg
 source\HWGFILO.prg
 source\HWGFont.prg
+source\HWGGrid.prg
 source\HWGGroup.prg
 source\HWGIcon.prg
+source\HWGLIFO.prg
 source\HWGLine.prg
+source\HWGListBox.prg
 source\HWGMainWindow.prg
 source\HWGMdiChildWindow.prg
 source\HWGMenu.prg
@@ -44,11 +50,18 @@ source\HWGStatic.prg
 source\HWGStatus.prg
 source\HWGTab.prg
 source\HWGTimer.prg
+source\HWGTimeEdit.prg
 source\HWGToolBar.prg
 source\HWGToolBarItem.prg
+source\HWGTrackBar.prg
+source\HWGTree.prg
+source\HWGTreeNode.prg
 source\HWGUpDown.prg
 source\HWGWindow.prg
+source\miscfuncs.prg
 source\msgbox.prg
+
+-iinclude
 
 -hblib
 

@@ -20,17 +20,17 @@ PROCEDURE Main ()
    LOCAL oDialog
    LOCAL oButton
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
    INIT DIALOG oDialog TITLE "Janela de diálogo" AT 300,300 SIZE 320,240
 
    @ 10,10 BUTTON oButton CAPTION "Clique aqui" SIZE 120,30 OF oDialog ;
-      ON CLICK {||hwg_MsgInfo("botão clicado", "Aviso")}
+      ON CLICK {||hwgqt_MsgInfo("botão clicado", "Aviso")}
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

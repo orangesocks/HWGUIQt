@@ -26,7 +26,7 @@ PROCEDURE Main ()
    LOCAL oFontTab4
    LOCAL oFontTab5
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
    PREPARE FONT oFontTab  NAME "Arial Bold" WIDTH 12
    PREPARE FONT oFontTab1 NAME "Arial" WIDTH 14
@@ -35,7 +35,7 @@ PROCEDURE Main ()
    PREPARE FONT oFontTab4 NAME "Times New Roman" WIDTH 14
    PREPARE FONT oFontTab5 NAME "Lucida Console" WIDTH 14
 
-   INIT DIALOG oDialog TITLE "Teste da classe HTab" SIZE 640,480
+   INIT DIALOG oDialog TITLE "Teste da classe HWGTab" SIZE 640,480
 
    @ 10,10 TAB oTAB ITEMS {} SIZE 640-20,480-20 FONT oFontTab OF oDialog
 
@@ -56,8 +56,8 @@ PROCEDURE Main ()
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

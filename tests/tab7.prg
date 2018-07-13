@@ -56,9 +56,9 @@ PROCEDURE Main ()
    LOCAL oButton5
    LOCAL oButton6
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
-   INIT DIALOG oDialog TITLE "Teste da classe HTab" SIZE 640,480+20
+   INIT DIALOG oDialog TITLE "Teste da classe HWGTab" SIZE 640,480+20
 
    @ 10,10 TAB oMainTab ITEMS {} SIZE 640-20,480-20 OF oDialog
 
@@ -106,7 +106,7 @@ PROCEDURE Main ()
          @ 10,10 SAY oSay3A CAPTION "oSay3A da página 3A"
       END PAGE OF oTab3
       BEGIN PAGE "Página 3B" OF oTab3
-         @ 10,10 SAY oSay3 CAPTION "oSay3B da página 3B"
+         @ 10,10 SAY oSay3B CAPTION "oSay3B da página 3B"
       END PAGE OF oTab3
       BEGIN PAGE "Página 3C" OF oTab3
          @ 10,10 SAY oSay3C CAPTION "oSay3C da página 3C"
@@ -157,17 +157,17 @@ PROCEDURE Main ()
       END PAGE OF oTab5
    END PAGE OF oMainTab
 
-   @ 010,500-30 BUTTON oButton1 CAPTION "Botão1" SIZE 100,25 ON CLICK {||hwg_MsgInfo("botão 1")} OF oDialog
-   @ 110,500-30 BUTTON oButton2 CAPTION "Botão2" SIZE 100,25 ON CLICK {||hwg_MsgInfo("botão 2")} OF oDialog
-   @ 210,500-30 BUTTON oButton3 CAPTION "Botão3" SIZE 100,25 ON CLICK {||hwg_MsgInfo("botão 3")} OF oDialog
-   @ 310,500-30 BUTTON oButton4 CAPTION "Botão4" SIZE 100,25 ON CLICK {||hwg_MsgInfo("botão 4")} OF oDialog
-   @ 410,500-30 BUTTON oButton5 CAPTION "Botão5" SIZE 100,25 ON CLICK {||hwg_MsgInfo("botão 5")} OF oDialog
-   @ 510,500-30 BUTTON oButton6 CAPTION "Botão6" SIZE 100,25 ON CLICK {||hwg_MsgInfo("botão 6")} OF oDialog
+   @ 010,500-30 BUTTON oButton1 CAPTION "Botão1" SIZE 100,25 ON CLICK {||hwgqt_MsgInfo("botão 1")} OF oDialog
+   @ 110,500-30 BUTTON oButton2 CAPTION "Botão2" SIZE 100,25 ON CLICK {||hwgqt_MsgInfo("botão 2")} OF oDialog
+   @ 210,500-30 BUTTON oButton3 CAPTION "Botão3" SIZE 100,25 ON CLICK {||hwgqt_MsgInfo("botão 3")} OF oDialog
+   @ 310,500-30 BUTTON oButton4 CAPTION "Botão4" SIZE 100,25 ON CLICK {||hwgqt_MsgInfo("botão 4")} OF oDialog
+   @ 410,500-30 BUTTON oButton5 CAPTION "Botão5" SIZE 100,25 ON CLICK {||hwgqt_MsgInfo("botão 5")} OF oDialog
+   @ 510,500-30 BUTTON oButton6 CAPTION "Botão6" SIZE 100,25 ON CLICK {||hwgqt_MsgInfo("botão 6")} OF oDialog
 
    ACTIVATE DIALOG oDialog
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN

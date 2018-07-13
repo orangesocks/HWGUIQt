@@ -14,7 +14,33 @@
 #endif
 #include "hbclass.ch"
 
+// TODO: add font
+
 CLASS HWGAction INHERIT HWGObject
+
+   //DATA lEnabled       // enabled or not
+   ACCESS lEnabled INLINE ::oQt:isEnabled()
+   ASSIGN lEnabled(lValue) INLINE ::oQt:setEnabled(lValue)
+
+   //DATA lVisible       // visible or not
+   ACCESS lVisible INLINE ::oQt:isVisible()
+   ASSIGN lVisible(lValue) INLINE ::oQt:setVisible(lValue)
+
+   //DATA cToolTip
+   ACCESS cToolTip INLINE ::oQt:toolTip()
+   ASSIGN cToolTip(cToolTip) INLINE ::oQt:setToolTip(cToolTip)
+
+   //DATA cStatusTip
+   ACCESS cStatusTip INLINE ::oQt:statusTip()
+   ASSIGN cStatusTip(cStatusTip) INLINE ::oQt:setStatusTip(cStatusTip)
+
+   //DATA cWhatsThis
+   ACCESS cWhatsThis INLINE ::oQt:whatsThis()
+   ASSIGN cWhatsThis(cWhatsThis) INLINE ::oQt:setWhatsThis(cWhatsThis)
+
+   //DATA cStyleSheet
+   ACCESS cStyleSheet INLINE ::oQt:styleSheet()
+   ASSIGN cStyleSheet(cStyleSheet) INLINE ::oQt:setStyleSheet(cStyleSheet)
 
    DATA bInit
    DATA bTriggered
@@ -25,11 +51,12 @@ CLASS HWGAction INHERIT HWGObject
 
 ENDCLASS
 
-METHOD new (oParent,cIcon,cText,cToolTip,cStatusTip,cWhatsThis,cStyleSheet,;
-            bOnInit,bOnTriggered) CLASS HWGAction
+METHOD new ( oParent, cIcon, cText, cIconText, cToolTip, cStatusTip, cWhatsThis, cStyleSheet, oFont, ;
+             bInit, bTriggered, xKeySequence, lCheckable, lChecked, lDisabled, lInvisible ) CLASS HWGAction
 
    IF valtype(oParent) == "O"
       ::oQt := QAction():new(oParent:oQt)
+      ::oParent := oParent
    ELSE
       ::oQt := QAction():new()
    ENDIF
@@ -40,6 +67,10 @@ METHOD new (oParent,cIcon,cText,cToolTip,cStatusTip,cWhatsThis,cStyleSheet,;
 
    IF valtype(cText) == "C"
       ::oQt:setText(cText)
+   ENDIF
+
+   IF valtype(cIconText) == "C"
+      ::oQt:setIconText(cIconText)
    ENDIF
 
    IF valtype(cToolTip) == "C"
@@ -58,13 +89,45 @@ METHOD new (oParent,cIcon,cText,cToolTip,cStatusTip,cWhatsThis,cStyleSheet,;
       ::oQt:setStyleSheet(cStyleSheet)
    ENDIF
 
-   IF valtype(bOnInit) == "B"
-      ::bInit := bOnInit
+   IF valtype(oFont) == "O"
+      ::oQt:setFont(oFont:oQt)
    ENDIF
 
-   IF valtype(bOnTriggered) == "B"
-      ::bTriggered := bOnTriggered
-      ::oQt:onTriggered({||::onTriggered()}) // TODO: desconexão
+   IF valtype(bInit) == "B"
+      ::bInit := bInit
+   ENDIF
+
+   IF valtype(bTriggered) == "B"
+      ::bTriggered := bTriggered
+      ::oQt:onTriggered( {||::onTriggered()} ) // TODO: desconnection
+   ENDIF
+
+   IF valtype(xKeySequence) != "U"
+      ::oQt:setShortcut( QKeySequence():new(xKeySequence) )
+   ENDIF
+
+   IF valtype(lCheckable) == "L"
+      IF lCheckable
+         ::oQt:setCheckable(.T.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lChecked) == "L"
+      IF lChecked
+         ::oQt:setChecked(.T.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
    ENDIF
 
    ::activate()
@@ -74,7 +137,7 @@ RETURN self
 METHOD activate () CLASS HWGAction
 
    IF valtype(::bInit) == "B"
-      eval(::bInit)
+      eval(::bInit, self)
    ENDIF
 
 RETURN NIL

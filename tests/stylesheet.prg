@@ -26,7 +26,7 @@ PROCEDURE Main ()
    cSS += "QPushButton {color: blue; background-color: white;} "
    cSS += "QDialog {color: white; background-color: lightgreen;} "
 
-   oApp := QApplication():new()
+   INIT APPLICATION oApp
 
    INIT WINDOW oMainWindow TITLE "Janela principal" SIZE 800,600 STYLESHEET cSS MAIN
 
@@ -34,11 +34,11 @@ PROCEDURE Main ()
 
    ACTIVATE WINDOW oMainWindow
 
-   oApp:exec()
+   EXECUTE APPLICATION oApp
 
-   oMainWindow:delete()
+   RELEASE WINDOW oMainWindow
 
-   oApp:delete()
+   RELEASE APPLICATION oApp
 
 RETURN
 
@@ -94,13 +94,13 @@ STATIC FUNCTION dialogo (oParent)
    ACTIVATE DIALOG oDialog
 
    IF oDialog:oQt:result() == 1
-      hwg_MsgInfo("Ok", "Resultado")
+      hwgqt_MsgInfo("Ok", "Resultado")
    ENDIF
 
    IF oDialog:oQt:result() == 0
-      hwg_MsgInfo("Cancel", "Resultado")
+      hwgqt_MsgInfo("Cancel", "Resultado")
    ENDIF
 
-   oDialog:delete()
+   RELEASE DIALOG oDialog
 
 RETURN NIL

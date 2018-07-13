@@ -18,6 +18,8 @@ CLASS HWGEdit INHERIT HWGControl
 
    DATA bSetGet
    DATA cType INIT "C"
+   DATA cPicture INIT ""
+   DATA bChange
 
    METHOD New
    METHOD activate
@@ -29,47 +31,36 @@ CLASS HWGEdit INHERIT HWGControl
 
 ENDCLASS
 
-METHOD New ( oParent, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, cStyleSheet, oFont, ;
-             xVar, bSetGet, par13, ;
-             bInit, bSize, bPaint, bGFocus, bLFocus ) CLASS HWGEdit
+METHOD New ( oParent, nId, nStyle, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis, ;
+             cStyleSheet, oFont, xForeColor, xBackColor, ;
+             xVar, bSetGet, cPicture, ;
+             bInit, bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable, ;
+             bChange, lPassword, nMaxLength, lNoBorder, lReadOnly, cInputMask, lDisabled, lInvisible ) CLASS HWGEdit
 
    IF valtype(oParent) == "O"
       ::oQt := QLineEdit():new(oParent:oQt)
+      ::oParent := oParent
    ELSE
       IF valtype(HWGFILO():last()) == "O"
          ::oQt := QLineEdit():new(HWGFILO():last():oQt)
+         ::oParent := HWGFILO():last()
       ELSE
          ::oQt := QLineEdit():new()
       ENDIF
    ENDIF
 
-   IF valtype(nX) == "N" .AND. valtype(nY) == "N"
-      ::oQt:move(nX,nY)
+   IF nId == NIL
+      ::nId := ::newId()
+   ELSE
+      ::nId := nId
    ENDIF
 
-   IF valtype(nWidth) == "N" .AND. valtype(nHeight) == "N"
-      ::oQt:resize(nWidth,nHeight)
-   ENDIF
-
-   IF valtype(cToolTip) == "C"
-      ::oQt:setToolTip(cToolTip)
-   ENDIF
-
-   IF valtype(cStatusTip) == "C"
-      ::oQt:setStatusTip(cStatusTip)
-   ENDIF
-
-   IF valtype(cWhatsThis) == "C"
-      ::oQt:setWhatsThis(cWhatsThis)
-   ENDIF
-
-   IF valtype(cStyleSheet) == "C"
-      ::oQt:setStyleSheet(cStyleSheet)
-   ENDIF
-
-   IF valtype(oFont) == "O"
-      ::oQt:setFont(oFont:oQt)
-   ENDIF
+   ::configureStyle( nStyle )
+   ::configureGeometry( nX, nY, nWidth, nHeight )
+   ::configureTips( cToolTip, cStatusTip, cWhatsThis )
+   ::configureStyleSheet( cStyleSheet )
+   ::configureFont( oFont )
+   ::configureColors( ::oQt:foregroundRole(), xForeColor, ::oQt:backgroundRole(), xBackColor )
 
    IF valtype(xVar) == "C" //.OR. valtype(xVar) == "N" .OR. valtype(xVar) == "D"
       ::cType := valtype(xVar)
@@ -82,36 +73,64 @@ METHOD New ( oParent, nX, nY, nWidth, nHeight, cToolTip, cStatusTip, cWhatsThis,
 
    ::bSetGet := bSetGet
 
+   IF valtype(cPicture) == "C"
+      ::cPicture := cPicture
+   ENDIF
+
    IF valtype(bInit) == "B"
       ::bInit := bInit
    ENDIF
 
-   IF valtype(bSize) == "B"
-      ::bSize := bSize
-      ::oQt:onResizeEvent( {|oSender,oEvent| ::onSize(oSender,oEvent) } )
+   ::configureEvents( bSize, bMove, bPaint, bGFocus, bLFocus, bShow, bHide, bEnable, bDisable )
+   ::connectEvents()
+
+   IF valtype(bChange) == "B"
+      ::bChange := bChange
    ENDIF
 
-   IF valtype(bPaint) == "B"
-      ::bPaint := bPaint
-      ::oQt:onPaintEvent( {|oSender,oEvent| ::onPaint(oSender,oEvent) } )
+   IF valtype(lPassword) == "L"
+      IF lPassword
+         ::oQt:setEchoMode(QLineEdit_Password)
+      ENDIF
    ENDIF
 
-   IF valtype(bGFocus) == "B"
-      ::bGFocus := bGFocus
-      ::oQt:onFocusInEvent( {|oSender,oEvent| ::onGFocus(oSender,oEvent) } )
+   IF valtype(nMaxLength) == "N"
+      ::oQt:setMaxLength(nMaxLength)
    ENDIF
 
-   IF valtype(bLFocus) == "B"
-      ::bLFocus := bLFocus
-      ::oQt:onFocusOutEvent( {|oSender,oEvent| ::onLFocus(oSender,oEvent) } )
+   IF valtype(lNoBorder) == "L"
+      IF lNoBorder
+         ::oQt:setFrame(.F.)
+      ENDIF
    ENDIF
 
-   // atualiza propriedades do objeto
+   IF valtype(lReadOnly) == "L"
+      IF lReadOnly
+         ::oQt:setReadOnly(.T.)
+      ENDIF
+   ENDIF
 
-   ::nLeft   := ::oQt:x()
-   ::nTop    := ::oQt:y()
-   ::nWidth  := ::oQt:width()
-   ::nHeight := ::oQt:height()
+   IF valtype(cInputMask) == "C"
+      ::oQt:setInputMask(cInputMask)
+   ENDIF
+
+   IF valtype(lDisabled) == "L"
+      IF lDisabled
+         ::oQt:setEnabled(.F.)
+      ENDIF
+   ENDIF
+
+   IF valtype(lInvisible) == "L"
+      IF lInvisible
+         ::oQt:setVisible(.F.)
+      ENDIF
+   ENDIF
+
+   ::oQt:onTextEdited( {|oSender,cText|eval(::bSetGet,cText)} )
+
+   IF ::oParent != NIL
+      ::oParent:addControl(self)
+   ENDIF
 
    ::activate()
 
@@ -120,7 +139,7 @@ RETURN self
 METHOD activate () CLASS HWGEdit
 
    IF valtype(::bInit) == "B"
-      eval(::bInit)
+      eval(::bInit, self)
    ENDIF
 
 RETURN NIL
